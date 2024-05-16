@@ -44,3 +44,7 @@ local_player = *(Player**)((uintptr_t)client_instance + 1337);
 - Usage of `std::chrono` to create keys for every pointer
 - The key is kept nearby and is not encrypted. If you use the same key, it is always visible during disassembly
 - Static addresses remain, which can be dangerous
+
+## Credits
+- https://antispy.xyz/docs/encrypted-pointer - for showing how this crap should look in code
+- https://chatgpt.com - for consultation
