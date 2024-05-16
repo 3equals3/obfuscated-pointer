@@ -13,7 +13,7 @@ namespace eq3 {
 	public:
 		inline unsigned long long getKey() {
 			auto k = 0ll;
-			for (int v6 = 8; v6 > 0; --v6) {
+			for (int v6 = 8; v6 > 0; --v6) { // minecraft CID generation got reversed btw
 				int v7 = rand();
 				k = (k << 8) | (v7 & 0xFF);
 			}
