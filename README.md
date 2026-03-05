@@ -43,6 +43,7 @@ Decompilation example:
 - A smart pointers has not been added, which is why it is better to use only static and important pointers that will live for a long time
 - Almost the same pattern on each pointer
 - Static addresses remain, which can be dangerous
+- Small bunch of operators implemented
 
 ## Credits
 - https://antispy.xyz/docs/encrypted-pointer - for showing how this crap should look in code
