@@ -27,7 +27,7 @@ public:
 	    return local_player;
 	}
 };
-eq3::encrypted_pointer<GameData> GameData::getGameData() { // цю хуйню надо отдельно выделять потому что компилятор оптимизирует и все идет по бороде и inline ruining
+eq3::encrypted_pointer<GameData> GameData::getGameData() {
 	static volatile bool flag = false;
 	if (!flag || game_data == nullptr) {
 		flag = true;
@@ -46,15 +46,14 @@ void idontgiveafuck(eq3::encrypted_pointer<GameData> pon) {
 }
 
 int main() {
-        auto da = GameData::getGameData(); // this f****t perceived it as inline simply because the definition of return was in the class and not separately
+    auto da = GameData::getGameData();
 	auto p = new Player(100, 100);
-        game_data->local_player = p;
+    game_data->local_player = p;
 	idontgiveafuck(da);
 	while (game_data->getLocalPlayer()->health > 0) {
 		std::cout << "Health: " << game_data->getLocalPlayer()->health << std::endl;
 		game_data->getLocalPlayer()->hurt();
 		idontgiveafuck(da);
-		Sleep(50);
 	}
 	std::cout << "Player died!";
 	return 0;
