@@ -1,59 +1,53 @@
 #include <iostream>
 #include <cstdint>
-#include <chrono>
+#include <atomic>
 
 namespace eq3 {
-	extern bool random_initted = false;
-	//constexpr long long ENCRYPTION_KEY = 0x22801337FEDCBA98; // if we want to use static this is required
+	namespace detail {
+		inline std::atomic<uint64_t>& key_counter() {
+			static std::atomic<uint64_t> counter{0xDEADBEEFCAFEBABE};
+			return counter;
+		}
+	}
+
 	template<typename T>
 	class encrypted_pointer {
 	private:
 		volatile uintptr_t _encryptedAddress;
-		volatile uintptr_t _key = 0;
-	public:
-		inline unsigned long long getKey() {
-			auto k = 0ll;
-			for (int v6 = 8; v6 > 0; --v6) { // minecraft CID generation got reversed btw
-				int v7 = rand();
-				k = (k << 8) | (v7 & 0xFF);
-			}
-			return (_key = k);
+		volatile uintptr_t _key;
+
+		static inline uint64_t generate_unique_key() {
+			return detail::key_counter().fetch_add(0x1337BEEFDEADC0DE, std::memory_order_relaxed);
 		}
-		encrypted_pointer() : _encryptedAddress(0) {}
-		encrypted_pointer(T* ptr) {
-			if (!random_initted) {
-				srand(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
-				random_initted = !random_initted; // 我为这种胡言乱语感到羞耻
-			} // 
+
+	public:
+		encrypted_pointer() : _encryptedAddress(0), _key(0) {}
+
+		encrypted_pointer(T* ptr) : _key(generate_unique_key()) {
 			_encryptedAddress = reinterpret_cast<uintptr_t>(ptr);
-			_key = getKey();
-			_encryptedAddress ^= _key; // TODO: If it doesn't screw up optimization, then it’s advisable to use a chaotic algorithm
+			_encryptedAddress ^= _key;
 			_encryptedAddress = (_encryptedAddress << 8) | (_encryptedAddress >> (sizeof(uintptr_t) * 8 - 8));
 		}
 
 		inline T* get() {
 			uintptr_t decryptedAddress = _encryptedAddress;
 			decryptedAddress =
-				(decryptedAddress << (sizeof(uintptr_t) * 8 - 8)) | (decryptedAddress >> 8); //TODO: IDA showing as __ROR8__(qword_1337, 8);
+				(decryptedAddress << (sizeof(uintptr_t) * 8 - 8)) | (decryptedAddress >> 8);
 			decryptedAddress ^= _key;
-
 			return reinterpret_cast<T*>(decryptedAddress);
 		}
 
 		inline T* set(T* ptr) {
-			if (!random_initted) {
-				srand(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
-				random_initted = !random_initted; // yep code duping
-			}
-			_key = getKey();
+			_key = generate_unique_key();
 			_encryptedAddress = reinterpret_cast<uintptr_t>(ptr);
 			_encryptedAddress ^= _key;
 			_encryptedAddress =
 				(_encryptedAddress << 8) | (_encryptedAddress >> (sizeof(uintptr_t) * 8 - 8));
 			return ptr;
 		}
+
 	public:
-		inline T* operator->() { // estúpido
+		inline T* operator->() {
 			return get();
 		}
 		inline T* operator=(T* ptr) {
