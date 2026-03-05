@@ -36,13 +36,12 @@ local_player.set(new Player(100, 0));
 /* or if you have an existing pointer */
 local_player = *(Player**)((uintptr_t)client_instance + 1337);
 ```
+Decompilation example:
+![decompiled](decompiled.png)
 
 ## Known issues
 - A smart pointers has not been added, which is why it is better to use only static and important pointers that will live for a long time
-- Probably bad performance when dereferencing pointers and getting the value via *pointer
-- The same pattern on each pointer
-- Usage of `std::chrono` to create keys for every pointer
-- The key is kept nearby and is not encrypted. If you use the same key, it is always visible during disassembly
+- Almost the same pattern on each pointer
 - Static addresses remain, which can be dangerous
 
 ## Credits
